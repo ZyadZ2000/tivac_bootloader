@@ -1,14 +1,21 @@
 /******************************************************************************
  *
- * Default Linker script for the Texas Instruments TM4C123GH6PM
+ * Modified Linker script for the Texas Instruments TM4C123GH6PM
  *
  * This is derived from revision 15071 of the TivaWare Library.
  *
  *****************************************************************************/
 
+FLASH_START = 0x00000000;
+FLASH_LENGTH = 0x00020000;
+
+/* Limit the Bootloader to 8 KBs of Flash */
+BOOTLOADER_START = FLASH_START;
+BOOTLOADER_LENGTH = 0x00002000;
+
 MEMORY
 {
-    FLASH (RX) : ORIGIN = 0x00000000, LENGTH = 0x00040000
+    FLASH (RX) : ORIGIN = BOOTLOADER_START, LENGTH = BOOTLOADER_LENGTH 
     SRAM (WX)  : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
@@ -28,6 +35,7 @@ SECTIONS {
         KEEP (*(.intvecs))
     } > REGION_TEXT
 
+    /* Virtual Table in case of using C++*/
     PROVIDE (_vtable_base_address = 0x20000000);
 
     .vtable (_vtable_base_address) : AT (_vtable_base_address) {
@@ -88,7 +96,8 @@ SECTIONS {
         __bss_end__ = .;
     } > REGION_BSS
 
-    .heap : {
+    /* Not gonna use a heap */
+    /* .heap : {
         __heap_start__ = .;
         end = __heap_start__;
         _end = end;
@@ -96,7 +105,7 @@ SECTIONS {
         KEEP(*(.heap))
         __heap_end__ = .;
         __HeapLimit = __heap_end__;
-    } > REGION_HEAP
+    } > REGION_HEAP */
 
     .stack : ALIGN(0x8) {
         _stack = .;
