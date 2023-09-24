@@ -16,10 +16,10 @@ typedef struct {
 #define SRECORD_TYPE_S1 1
 #define SRECORD_TYPE_S2 2
 #define SRECORD_TYPE_S3 3
-#define SRECORD_TYPE_S5 5
-#define SRECORD_TYPE_S7 7
-#define SRECORD_TYPE_S8 8
-#define SRECORD_TYPE_S9 9
+#define SRECORD_TYPE_S5 4
+#define SRECORD_TYPE_S7 5
+#define SRECORD_TYPE_S8 6
+#define SRECORD_TYPE_S9 7
 
 /* Parse States */
 #define SRECORD_PARSE_SUCCESS 0

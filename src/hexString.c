@@ -2,13 +2,13 @@
 #include <assert.h>
 #include <stddef.h>
 
-uint8_t HexString_u8_convert_to_int(const char *hex, uint8_t length,
-                                    uint64_t *result) {
+uint8_t HexString_u8_convert_to_int(const char *hex, const uint8_t length,
+                                    uint64_t *const result) {
   if (length > 16 || length <= 0 || hex == NULL || result == NULL)
     return HEX_STRING_CONVERT_ERROR;
 
   uint8_t iter = 0;
-  *result = 0; // Inititlize result to 0
+  *result = 0; // Initialize result to 0
 
   if (hex[0] == '0' && hex[1] == 'x')
     hex = hex + 2;
@@ -19,15 +19,15 @@ uint8_t HexString_u8_convert_to_int(const char *hex, uint8_t length,
 
     *result = *result << 4;
     /* 0 - 9 */
-    if (hex[iter] <= 57 && hex[iter] >= 48)
+    if (hex[iter] <= '9' && hex[iter] >= '0')
       *result |= (hex[iter] - 48) & 0xFF;
 
     /* A - F */
-    else if (hex[iter] <= 70 && hex[iter] >= 65)
+    else if (hex[iter] <= 'F' && hex[iter] >= 'A')
       *result |= (hex[iter] - 55) & 0xFF;
 
     /* a - f */
-    else if (hex[iter] <= 102 && hex[iter] >= 97)
+    else if (hex[iter] <= 'f' && hex[iter] >= 'a')
       *result |= (hex[iter] - 87) & 0xFF;
 
     else
