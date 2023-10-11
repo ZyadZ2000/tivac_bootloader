@@ -55,53 +55,48 @@ uint8_t HexString_u8_convert_to_uint_bigEndian(const char *hex,
   return HEX_STRING_CONVERT_SUCCESS;
 }
 
-uint64_t HexString_u64_convert_to_uint_littleEndian(
-    const char *hex, const uint8_t length, uint8_t *const convert_state) {
-  assert(hex != NULL && convert_state != NULL);
+uint8_t HexString_u8_convert_to_uint_littleEndian(const char *hex,
+                                                  const uint8_t length,
+                                                  uint8_t *result) {
+  assert(hex != NULL && result != NULL);
 
   if (length > 16 || length <= 0) {
-    *convert_state = HEX_STRING_CONVERT_ERROR;
-    return 0;
+    return HEX_STRING_CONVERT_ERROR;
   }
 
   uint8_t iter = 0;
-  uint64_t result = 0;
-  uint8_t *bytePtr = (uint8_t *)&result;
 
   if (hex[0] == '0' && hex[1] == 'x')
     hex = hex + 2;
 
   while (iter < length) {
     if (hex[iter] == '\0' || hex[iter] == '\n' || hex[iter] == '\r') {
-      *convert_state = HEX_STRING_LENGTH_INCORRECT;
-      return 0;
+      return HEX_STRING_LENGTH_INCORRECT;
     }
 
-    if (iter % 2 != 0)
-      *bytePtr = *bytePtr << 4;
-
-    else if (iter != 0)
-      bytePtr = bytePtr + 1;
+    if (iter % 2 != 0) {
+      *result = *result << 4;
+    } else if (iter != 0) {
+      result = result + 1;
+    }
 
     /* 0 - 9 */
     if (hex[iter] <= '9' && hex[iter] >= '0') {
-      *bytePtr |= (hex[iter] - 48) & 0xF;
+      *result |= (hex[iter] - 48) & 0xF;
     }
     /* A - F */
     else if (hex[iter] <= 'F' && hex[iter] >= 'A') {
-      *bytePtr |= (hex[iter] - 55) & 0xF;
+      *result |= (hex[iter] - 55) & 0xF;
     }
     /* a - f */
     else if (hex[iter] <= 'f' && hex[iter] >= 'a') {
-      *bytePtr |= (hex[iter] - 87) & 0xF;
+      *result |= (hex[iter] - 87) & 0xF;
     } else {
-      *convert_state = HEX_STRING_CONVERT_ERROR;
-      return 0;
+      return HEX_STRING_CONVERT_ERROR;
     }
 
     iter++;
   }
 
-  *convert_state = HEX_STRING_CONVERT_SUCCESS;
-  return result;
+  return HEX_STRING_CONVERT_SUCCESS;
 }
