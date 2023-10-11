@@ -7,7 +7,7 @@ typedef struct {
   uint8_t type;
   uint8_t count;
   uint32_t address;
-  uint32_t data;
+  uint32_t data[8]; // Max data length is 32 bytes
   uint8_t checksum;
 } strctSRecord_t;
 
@@ -21,12 +21,16 @@ typedef struct {
 #define SRECORD_TYPE_S8 6
 #define SRECORD_TYPE_S9 7
 
+/* Data Field Types */
+#define SRECORD_DATA_BIG_ENDIAN 0
+#define SRECORD_DATA_LITTLE_ENDIAN 1
+
 /* Parse States */
 #define SRECORD_PARSE_SUCCESS 0
 #define SRECORD_PARSE_ERROR 1
 
 /* Function Declarations */
 uint8_t SRecord_u8_parse(const char *charPtrRecord,
-                         strctSRecord_t *const strctSRecord);
+                         strctSRecord_t *const strctSRecord, uint8_t u8DataType);
 
 #endif
