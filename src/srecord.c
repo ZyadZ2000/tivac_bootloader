@@ -1,13 +1,14 @@
 #include "srecord.h"
 #include "hexString.h"
 #include <stddef.h>
+#include <stdio.h>
 
 #define SRECORD_CHECKSUM_VALID 0
 #define SRECORD_CHECKSUM_INVALID 1
 
 /* Array holding S-Record Type specific properties. */
 const uint8_t min_count[] = {4, 4, 5, 6, 3, 5, 4, 3};
-const uint8_t max_count[] = {7, 7, 8, 9, 3, 5, 4, 3};
+const uint8_t max_count[] = {35, 35, 36, 37, 3, 5, 4, 3};
 const uint8_t address_length[] = {4, 4, 6, 8, 4, 8, 6, 4};
 
 /* Static Functions Declarations */
@@ -15,7 +16,8 @@ static uint8_t
 SRecord_u8_validate_checksum(const strctSRecord_t *const strctSRecord);
 
 uint8_t SRecord_u8_parse(const char *charPtrRecord,
-                         strctSRecord_t *const strctSRecord) {
+                         strctSRecord_t *const strctSRecord,
+                         const uint8_t u8DataType) {
   if (charPtrRecord == NULL || strctSRecord == NULL)
     return SRECORD_PARSE_ERROR;
 
@@ -52,19 +54,22 @@ uint8_t SRecord_u8_parse(const char *charPtrRecord,
     break;
   }
 
-  uint8_t countErr = HexString_u8_convert_to_int(
-      charPtrRecord + 2, 2, (uint64_t *)&strctSRecord->count);
+  uint8_t countErr = HexString_u8_convert_to_uint_bigEndian(
+      charPtrRecord + 2, 2, &strctSRecord->count);
+
   if (countErr == HEX_STRING_CONVERT_ERROR ||
-      countErr == HEX_STRING_LENGTH_INCORRECT)
+      countErr == HEX_STRING_LENGTH_INCORRECT) {
     return SRECORD_PARSE_ERROR;
+  }
 
   if (strctSRecord->count < min_count[strctSRecord->type] ||
       strctSRecord->count > max_count[strctSRecord->type])
     return SRECORD_PARSE_ERROR;
 
-  uint8_t addErr = HexString_u8_convert_to_int(
+  uint8_t addErr = HexString_u8_convert_to_uint_bigEndian(
       charPtrRecord + 4, address_length[strctSRecord->type],
-      (uint64_t *)&strctSRecord->address);
+      (uint8_t *)&strctSRecord->address);
+
   if (addErr == HEX_STRING_CONVERT_ERROR ||
       addErr == HEX_STRING_LENGTH_INCORRECT)
     return SRECORD_PARSE_ERROR;
@@ -73,20 +78,55 @@ uint8_t SRecord_u8_parse(const char *charPtrRecord,
       strctSRecord->type != SRECORD_TYPE_S7 &&
       strctSRecord->type != SRECORD_TYPE_S8 &&
       strctSRecord->type != SRECORD_TYPE_S9) {
-    uint8_t dataErr = HexString_u8_convert_to_int(
-        charPtrRecord + 4 + address_length[strctSRecord->type],
-        2 * (strctSRecord->count - 3), (uint64_t *)&strctSRecord->data);
 
-    if (dataErr == HEX_STRING_CONVERT_ERROR ||
-        dataErr == HEX_STRING_LENGTH_INCORRECT)
-      return SRECORD_PARSE_ERROR;
-  } else {
-    strctSRecord->data = 0x00000000;
+    int8_t dataCount =
+        strctSRecord->count - (address_length[strctSRecord->type] / 2) - 1;
+
+    uint8_t dataErr = 0;
+    uint8_t i = 0;
+    do {
+      uint8_t charCount = 0;
+
+      if (dataCount < 4) {
+        charCount = dataCount * 2;
+      } else {
+        charCount = 8;
+      }
+
+      if (u8DataType == SRECORD_DATA_BIG_ENDIAN) {
+
+        dataErr = HexString_u8_convert_to_uint_bigEndian(
+            charPtrRecord + 4 + address_length[strctSRecord->type] + (8 * i),
+            charCount, (uint8_t *)&strctSRecord->data[i]);
+
+      } else if (u8DataType == SRECORD_DATA_LITTLE_ENDIAN) {
+
+        dataErr = HexString_u8_convert_to_uint_littleEndian(
+            charPtrRecord + 4 + address_length[strctSRecord->type] + (8 * i),
+            charCount, (uint8_t *)&strctSRecord->data[i]);
+
+      } else {
+        return SRECORD_PARSE_ERROR;
+      }
+
+      if (dataErr == HEX_STRING_CONVERT_ERROR ||
+          dataErr == HEX_STRING_LENGTH_INCORRECT)
+        return SRECORD_PARSE_ERROR;
+
+      i++;
+      dataCount = dataCount - 4;
+    } while (dataCount > 0);
   }
 
-  uint8_t checksumErr = HexString_u8_convert_to_int(
+  // } else {
+  //   for (uint8_t i = 0; i < 8; i++) {
+  //     strctSRecord->data[i] = 0x00000000;
+  //   }
+  // }
+
+  uint8_t checksumErr = HexString_u8_convert_to_uint_bigEndian(
       charPtrRecord + 4 + 2 * (strctSRecord->count - 1), 2,
-      (uint64_t *)&strctSRecord->checksum);
+      &strctSRecord->checksum);
 
   if (checksumErr == HEX_STRING_CONVERT_ERROR ||
       checksumErr == HEX_STRING_LENGTH_INCORRECT)
@@ -106,12 +146,27 @@ SRecord_u8_validate_checksum(const strctSRecord_t *const strctSRecord) {
     return SRECORD_CHECKSUM_INVALID;
   uint16_t checksum = 0;
   checksum += strctSRecord->count;
-  int i;
+  int i, j;
   for (i = 0; i < 4; i++) {
     checksum += (strctSRecord->address >> (8 * i)) & 0xFF;
-    checksum += (strctSRecord->data >> (8 * i)) & 0xFF;
+  }
+
+  if (strctSRecord->type != SRECORD_TYPE_S5 &&
+      strctSRecord->type != SRECORD_TYPE_S7 &&
+      strctSRecord->type != SRECORD_TYPE_S8 &&
+      strctSRecord->type != SRECORD_TYPE_S9) {
+
+    uint8_t dataCount =
+        strctSRecord->count - (address_length[strctSRecord->type] / 2) - 1;
+
+    for (i = 0; i < dataCount; i += 4) {
+      for (j = 0; j < 4; j++) {
+        checksum += (strctSRecord->data[i / 4] >> (8 * j)) & 0xFF;
+      }
+    }
   }
   checksum = ~checksum;
+
   if ((checksum & 0xFF) != strctSRecord->checksum)
     return SRECORD_CHECKSUM_INVALID;
 
