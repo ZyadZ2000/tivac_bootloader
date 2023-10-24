@@ -1,5 +1,5 @@
-#include "hexString.h"
 #include <assert.h>
+#include <src/util/hexString.h>
 #include <stddef.h>
 
 uint8_t HexString_u8_convert_to_uint_bigEndian(const char *hex,

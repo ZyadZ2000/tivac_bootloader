@@ -1,5 +1,5 @@
-#ifndef BOOTLOADER_CONFIG_H
-#define BOOTLOADER_CONFIG_H
+#ifndef SYSTEM_CONFIG_H
+#define SYSTEM_CONFIG_H
 
 /* Image Formats */
 #define SRECORD_IMAGE 0

@@ -43,7 +43,7 @@ static void IntDefaultHandler(void);
 // The entry point for the application.
 //
 //*****************************************************************************
-extern int bootloader_main(void);
+extern int main(void);
 
 //*****************************************************************************
 //
@@ -287,7 +287,7 @@ void ResetISR(void) {
   //
   // Call the application's entry point.
   //
-  bootloader_main();
+  main();
 }
 
 //*****************************************************************************

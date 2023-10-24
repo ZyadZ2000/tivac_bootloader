@@ -7,7 +7,7 @@
  *****************************************************************************/
 
 FLASH_START = 0x00000000;
-FLASH_LENGTH = 0x00020000;
+FLASH_LENGTH = 0x00040000;
 
 /* Limit the Bootloader to 8 KBs of Flash */
 BOOTLOADER_START = FLASH_START;
@@ -15,7 +15,7 @@ BOOTLOADER_LENGTH = 0x00002000;
 
 MEMORY
 {
-    FLASH (RX) : ORIGIN = BOOTLOADER_START, LENGTH = BOOTLOADER_LENGTH 
+    FLASH (RX) : ORIGIN = BOOTLOADER_START, LENGTH = FLASH_LENGTH
     SRAM (WX)  : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
@@ -29,7 +29,7 @@ REGION_ALIAS("REGION_ARM_EXTAB", FLASH);
 
 SECTIONS {
 
-    PROVIDE (_intvecs_base_address = 0x0);
+    PROVIDE (_intvecs_base_address = BOOTLOADER_START);
 
     .intvecs (_intvecs_base_address) : AT (_intvecs_base_address) {
         KEEP (*(.intvecs))
@@ -112,4 +112,6 @@ SECTIONS {
         __stack = .;
         KEEP(*(.stack))
     } > REGION_STACK
+
+   PROVIDE (end = .);
 }
