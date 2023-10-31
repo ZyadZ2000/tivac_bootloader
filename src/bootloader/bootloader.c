@@ -17,7 +17,7 @@
 #include "uart.h"
 
 uint8_t gSystickFlag = 0;
-int8_t gUartByte = 0;
+char gUartByte = 0;
 
 void SysTick_IRQ_Handler(void) { gSystickFlag = 1; }
 
@@ -40,9 +40,9 @@ void BOOTLOADER_voidInit(void) {
   MAP_GPIOPinConfigure(GPIO_PA1_U0TX);
   MAP_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-  MAP_UARTClockSourceSet(UART0_BASE, UART_CLOCK_SYSTEM);
-
   MAP_UARTDisable(UART0_BASE);
+
+  MAP_UARTClockSourceSet(UART0_BASE, UART_CLOCK_SYSTEM);
 
   MAP_UARTConfigSetExpClk(
       UART0_BASE, MAP_SysCtlClockGet(), 9600,
@@ -68,17 +68,19 @@ void BOOTLOADER_voidManager(void) {
   if (*((uint64_t *)APP_START_ADDRESS) != 0xFFFFFFFFFFFFFFFF) {
     /* Check if the shared byte in EEPROM is application mode */
     uint8_t sharedByte;
-    EEPROMRead((uint32_t *)&sharedByte, 0x000, 1);
+    EEPROMRead((uint32_t *)&sharedByte, 0x000, 4);
     if (sharedByte == 'A') {
       /* Check If The Flashing Tool is Connected */
-      MAP_IntMasterEnable();
-      MAP_IntEnable(INT_UART0);
       MAP_UARTCharPut(UART0_BASE, 'R');
+      MAP_UARTFIFODisable(UART0_BASE);
+      MAP_UARTFIFOLevelSet(UART0_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
       MAP_UARTIntEnable(UART0_BASE, UART_INT_RX);
+      MAP_IntEnable(INT_UART0);
       /* Wait for the response within 1 second */
       MAP_SysTickPeriodSet(16777216);
       MAP_SysTickIntEnable();
       MAP_SysTickEnable();
+
       while (gUartByte != 'O' && gSystickFlag == 0)
         ;
 
