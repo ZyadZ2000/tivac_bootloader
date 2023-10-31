@@ -15,7 +15,7 @@ BOOTLOADER_LENGTH = 0x00002000;
 
 MEMORY
 {
-    FLASH (RX) : ORIGIN = BOOTLOADER_START, LENGTH = FLASH_LENGTH
+    FLASH (RX) : ORIGIN = BOOTLOADER_START, LENGTH = BOOTLOADER_LENGTH
     SRAM (WX)  : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
@@ -97,7 +97,7 @@ SECTIONS {
     } > REGION_BSS
 
     /* Not gonna use a heap */
-    /* .heap : {
+    .heap : {
         __heap_start__ = .;
         end = __heap_start__;
         _end = end;
@@ -105,7 +105,7 @@ SECTIONS {
         KEEP(*(.heap))
         __heap_end__ = .;
         __HeapLimit = __heap_end__;
-    } > REGION_HEAP */
+    } > REGION_HEAP
 
     .stack : ALIGN(0x8) {
         _stack = .;

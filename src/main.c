@@ -1,21 +1,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "packet.h"
-#include "sysctl.h"
-
+#include "bootloader.h"
 
 int main(void) {
-  /* Initialize and Config UART0 (communication with the serial flashing tool)
-   */
-  SysCtlClockGet();
-  /* Branching logic */
+  /* Initialize BootLoader */
+  BOOTLOADER_voidInit();
 
-  /* If jumping to application, disable interrupts, deinitialize
-   peripherals,and relocate the vector table. */
+  /* Manager: Jump to Application or stay in Boot Mode */
+  BOOTLOADER_voidManager();
+
+  /* BootLoader Task in case of Boot Mode */
+  BOOTLOADER_voidTask();
+
   while (1) {
-    /* Boot Mode*/
-    /* Receive and Respond to Packets */
+    /* Should never reach here */
   }
 
   return 0;

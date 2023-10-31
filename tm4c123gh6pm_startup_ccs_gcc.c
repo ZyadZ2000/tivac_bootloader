@@ -44,6 +44,8 @@ static void IntDefaultHandler(void);
 //
 //*****************************************************************************
 extern int main(void);
+extern void SysTick_IRQ_Handler(void);
+extern void UART0_IRQ_Handler(void);
 
 //*****************************************************************************
 //
@@ -83,13 +85,13 @@ __attribute__((section(".intvecs"))) void (*const g_pfnVectors[])(void) = {
     IntDefaultHandler, // Debug monitor handler
     0,                 // Reserved
     IntDefaultHandler, // The PendSV handler
-    IntDefaultHandler, // The SysTick handler
+    SysTick_IRQ_Handler, // The SysTick handler
     IntDefaultHandler, // GPIO Port A
     IntDefaultHandler, // GPIO Port B
     IntDefaultHandler, // GPIO Port C
     IntDefaultHandler, // GPIO Port D
     IntDefaultHandler, // GPIO Port E
-    IntDefaultHandler, // UART0 Rx and Tx
+    UART0_IRQ_Handler, // UART0 Rx and Tx
     IntDefaultHandler, // UART1 Rx and Tx
     IntDefaultHandler, // SSI0 Rx and Tx
     IntDefaultHandler, // I2C0 Master and Slave

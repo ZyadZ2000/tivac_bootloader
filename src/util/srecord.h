@@ -30,8 +30,7 @@ typedef struct {
 #define SRECORD_PARSE_ERROR 1
 
 /* Function Declarations */
-uint8_t SRecord_u8_parse(const char *charPtrRecord,
-                         strctSRecord_t *const strctSRecord,
-                         uint8_t u8DataType);
+uint8_t SRecord_u8Parse(const char *charPtrRecord,
+                        strctSRecord_t *const strctSRecord, uint8_t u8DataType);
 
 #endif

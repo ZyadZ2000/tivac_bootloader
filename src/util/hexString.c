@@ -2,9 +2,9 @@
 #include <src/util/hexString.h>
 #include <stddef.h>
 
-uint8_t HexString_u8_convert_to_uint_bigEndian(const char *hex,
-                                               const uint8_t length,
-                                               uint8_t *result) {
+uint8_t HexString_u8ConvertToUintBigEndian(const char *hex,
+                                           const uint8_t length,
+                                           uint8_t *result) {
   assert(hex != NULL && result != NULL);
 
   if (length > 16 || length <= 0) {
@@ -14,8 +14,7 @@ uint8_t HexString_u8_convert_to_uint_bigEndian(const char *hex,
   uint8_t iter = 0;
   *result = 0;
 
-  if (hex[0] == '0' && hex[1] == 'x')
-    hex = hex + 2;
+  if (hex[0] == '0' && hex[1] == 'x') hex = hex + 2;
 
   while (iter < length) {
     if (hex[iter] == '\0' || hex[iter] == '\n' || hex[iter] == '\r') {
@@ -55,9 +54,9 @@ uint8_t HexString_u8_convert_to_uint_bigEndian(const char *hex,
   return HEX_STRING_CONVERT_SUCCESS;
 }
 
-uint8_t HexString_u8_convert_to_uint_littleEndian(const char *hex,
-                                                  const uint8_t length,
-                                                  uint8_t *result) {
+uint8_t HexString_u8ConvertToUintLittleEndian(const char *hex,
+                                              const uint8_t length,
+                                              uint8_t *result) {
   assert(hex != NULL && result != NULL);
 
   if (length > 16 || length <= 0) {
@@ -66,8 +65,7 @@ uint8_t HexString_u8_convert_to_uint_littleEndian(const char *hex,
 
   uint8_t iter = 0;
 
-  if (hex[0] == '0' && hex[1] == 'x')
-    hex = hex + 2;
+  if (hex[0] == '0' && hex[1] == 'x') hex = hex + 2;
 
   while (iter < length) {
     if (hex[iter] == '\0' || hex[iter] == '\n' || hex[iter] == '\r') {
