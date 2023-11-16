@@ -7,7 +7,7 @@ typedef struct {
   uint8_t type;
   uint8_t count;
   uint32_t address;
-  uint32_t data[8];  // Max data length is 32 bytes
+  uint32_t data[64];
   uint8_t checksum;
 } strctSRecord_t;
 

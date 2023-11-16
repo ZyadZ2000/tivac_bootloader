@@ -1,14 +1,17 @@
-#include <src/util/hexString.h>
-#include <src/util/srecord.h>
+#include "srecord.h"
+
 #include <stddef.h>
 #include <stdio.h>
+
+#include "hexString.h"
+
 
 #define SRECORD_CHECKSUM_VALID 0
 #define SRECORD_CHECKSUM_INVALID 1
 
 /* Array holding S-Record Type specific properties. */
 const uint8_t minCount[] = {4, 4, 5, 6, 3, 5, 4, 3};
-const uint8_t maxCount[] = {35, 35, 36, 37, 3, 5, 4, 3};
+const uint8_t maxCount[] = {255, 255, 255, 255, 3, 5, 4, 3};
 const uint8_t addressLength[] = {4, 4, 6, 8, 4, 8, 6, 4};
 
 /* Static Functions Declarations */
@@ -112,12 +115,6 @@ uint8_t SRecord_u8Parse(const char* charPtrRecord,
       dataCount = dataCount - 4;
     } while (dataCount > 0);
   }
-
-  // } else {
-  //   for (uint8_t i = 0; i < 8; i++) {
-  //     strctSRecord->data[i] = 0x00000000;
-  //   }
-  // }
 
   uint8_t checksumErr = HexString_u8ConvertToUintBigEndian(
       charPtrRecord + 4 + 2 * (strctSRecord->count - 1), 2,
