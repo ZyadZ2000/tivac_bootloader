@@ -29,23 +29,29 @@ REGION_ALIAS("REGION_ARM_EXTAB", FLASH);
 
 SECTIONS {
 
-    PROVIDE (_intvecs_base_address = BOOTLOADER_START);
-
+	/*
     .intvecs (_intvecs_base_address) : AT (_intvecs_base_address) {
         KEEP (*(.intvecs))
     } > REGION_TEXT
+	*/
 
-    /* Virtual Table in case of using C++*/
+    /*
     PROVIDE (_vtable_base_address = 0x20000000);
 
     .vtable (_vtable_base_address) : AT (_vtable_base_address) {
         KEEP (*(.vtable))
     } > REGION_DATA
+	*/
 
     .text : {
+        __code_load__ = LOADADDR (.text);
+        __code_start__ = .;
         CREATE_OBJECT_SYMBOLS
+        KEEP (*(.intvecs))
         *(.text)
         *(.text.*)
+        *(.rodata)
+        *(.rodata*)
         . = ALIGN(0x4);
         KEEP (*(.ctors))
         . = ALIGN(0x4);
@@ -56,17 +62,19 @@ SECTIONS {
         __init_array_end = .;
         *(.init)
         *(.fini*)
-    } > REGION_TEXT
+        __code_end__ = .;
+    } > SRAM AT> REGION_TEXT
 
+    PROVIDE (_intvecs_base_address = __code_start__);
     PROVIDE (__etext = .);
     PROVIDE (_etext = .);
     PROVIDE (etext = .);
-
+	/*
     .rodata : {
         *(.rodata)
         *(.rodata*)
     } > REGION_TEXT
-
+	*/
     .data : ALIGN (4) {
         __data_load__ = LOADADDR (.data);
         __data_start__ = .;
@@ -96,7 +104,6 @@ SECTIONS {
         __bss_end__ = .;
     } > REGION_BSS
 
-    /* Not gonna use a heap */
     .heap : {
         __heap_start__ = .;
         end = __heap_start__;
@@ -106,6 +113,7 @@ SECTIONS {
         __heap_end__ = .;
         __HeapLimit = __heap_end__;
     } > REGION_HEAP
+
 
     .stack : ALIGN(0x8) {
         _stack = .;
