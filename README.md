@@ -13,6 +13,8 @@ command-based bootloader with the following commands:
 The reserved space for the bootloader is 24 KBs. The bootloader currently only accepts a raw binary application. Code execution happens
 from RAM. Data is verified through a simple CRC algorithm.
 
+The code was successfully tested using a node.js script that communicated with the serial port.
+
 ## Plan
 
 0 - Improvements to code design.\
