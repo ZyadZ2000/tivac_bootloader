@@ -13,8 +13,9 @@ command-based bootloader with the following commands:
 The reserved space for the bootloader is 24 KBs. The bootloader currently only accepts a raw binary application. Code execution happens
 from RAM. Data is verified through a simple CRC algorithm.
 
-## To Do
+## Plan
 
+0 - Improvements to code design.
 1 - Support the S-RECORD and Intel Hex formats.
 2 - Support AES encryption.
 3 - Support having multiple applications.
